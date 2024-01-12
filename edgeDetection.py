@@ -14,12 +14,12 @@ def detect_edges(image_path):
     # Use Canny edge detector
     edges = cv2.Canny(blurred, 50, 150)
 
-    # Display the original and edge-detected images
-    cv2.imshow('Original Image', img)
-    cv2.imshow('Edge Detection', edges)
+    # Display the original and edge-detected images at original size
+    # cv2.imshow('Original Image', cv2.resize(img, (img.shape[1] // 2, img.shape[0] // 2)))
+    cv2.imshow('Edge Detection', cv2.resize(edges, (edges.shape[1] // 2, edges.shape[0] // 2)))
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    image_path = "path/to/your/car_image.jpg"  # Replace with the actual path to your car image
+    image_path = '''img/WhatsApp Image 2024-01-09 at 3.33.22 PM.jpeg'''  # Replace with the actual path to your car image
     detect_edges(image_path)
