@@ -21,6 +21,7 @@ def carAdMain(carID):
         ID = carData[0].get('Id')
         carImages = carData[0].get('images')
         carDesc = carData[0].get('description')
+        print("Description:",type(carDesc))
         
         # print("carImages", carImages)
 
@@ -29,9 +30,6 @@ def carAdMain(carID):
             # print("Before Filtering the Images:", imageRes)
 
             filtered_carImage = [img for img, result in zip(carImages, imageRes) if result == 1]
-
-            # print("After Filtering the Images", filtered_carImage)
-            # print("len of Filtering Image", len(filtered_carImage))
 
             # Find rejected images
             rejectedImages = list(set(carImages) - set(filtered_carImage))

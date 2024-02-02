@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Depends, Query, status
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
 from bson import ObjectId
+import uvicorn
 
 from main import carAdMain
 from mongodb import carzcollection
@@ -83,6 +84,10 @@ try:
         except Exception as e:
             # Handle exceptions, log them, and return an appropriate response
             raise HTTPException(status_code=500, detail="Internal Server Error") from e
+    
+    if __name__ == "__main__":
+        uvicorn.run(app, host="127.0.0.1", port=80)
+    
     
 except Exception as e:
     print(e) 
