@@ -25,10 +25,10 @@ WORKDIR /app
 
 # Copy only the necessary files from the builder stage
 COPY --from=builder /app/aitools /app/aitools
-COPY . .
+COPY app /app/app
 
 # Expose the port on which your FastAPI app will run
 EXPOSE 80
 
 # Command to run your FastAPI application
-CMD ["/app/aitools/bin/uvicorn", "app:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["/app/aitools/bin/uvicorn", "app.app:app", "--host", "0.0.0.0", "--port", "80"]

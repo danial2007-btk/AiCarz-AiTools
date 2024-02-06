@@ -5,7 +5,7 @@ from bson import ObjectId
 import uvicorn
 
 from main import carAdMain
-from mongodb import carzcollection
+from mongodb import carzcollection, mongodbConn
 
 try:
     
@@ -22,10 +22,7 @@ try:
     
     app = FastAPI(lifespan=lifespan)
 
-    # Base URL for the API
-    # app.baseURL = "https://aiengine.aicarz.com"
-
-    # The single valid API key
+    # The valid API key
     API_key = "lkjINRhG1rKRNc2kE5xfcK0hFJaz6Kvz1jux"
 
     # Dependency to check API key

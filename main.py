@@ -10,8 +10,6 @@ def carAdMain(carID):
         # check the car data
         carData = getData(carID)
 
-        # print("Car Data:", carData)
-
         if carData == None:
             return {"Response": "The data of the requested Id is not available"}
 
@@ -21,13 +19,9 @@ def carAdMain(carID):
         ID = carData[0].get('Id')
         carImages = carData[0].get('images')
         carDesc = carData[0].get('description')
-        print("Description:",type(carDesc))
-        
-        # print("carImages", carImages)
 
         if carImages is not None:
             imageRes = [imageChecker(image) for image in carImages]
-            # print("Before Filtering the Images:", imageRes)
 
             filtered_carImage = [img for img, result in zip(carImages, imageRes) if result == 1]
 
@@ -37,9 +31,7 @@ def carAdMain(carID):
             if len(filtered_carImage) == 0:
                 return {'Id': ID, 'CheckedDescription': carDesc, 'rejectedImages':rejectedImages,'adStatus': 'Rejected'}
 
-            # print("Description Before preprocessing:", carDesc)
             descriptionCheck = descriptionChecker(carDesc)
-            # print("Description After preprocessing", descriptionCheck)
 
             return {'Id': ID, 'CheckedDescription': descriptionCheck,'RejectedImages': rejectedImages, 'adStatus': 'Approved'}
         else:
@@ -47,4 +39,5 @@ def carAdMain(carID):
 
     except Exception as e:
         return f"Error inside the carAdMain Function {e}"
+
 
