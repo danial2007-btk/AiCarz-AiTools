@@ -3,9 +3,9 @@ from PIL import Image
 from io import BytesIO
 import numpy as np
 import warnings
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
-from tensorflow.keras.utils import get_file
+from keras.models import load_model
+from keras.preprocessing import image
+from keras.utils import get_file
 
 # from tensorflow import get_file, load_model, image
 
