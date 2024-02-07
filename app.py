@@ -1,14 +1,15 @@
-from fastapi import FastAPI, HTTPException, Depends, Query, status
+from fastapi import FastAPI, HTTPException, Depends, Query, status, UploadFile, File
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
 from bson import ObjectId
 import uvicorn
+import time
 
 from main import carAdMain
 from mongodb import carzcollection, mongodbConn
 
 try:
-    
+
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         # Load the ML model
@@ -18,8 +19,8 @@ try:
         # Clean up the ML models and release the resources
         print("xxxxxxxx   shurting down event")
         mongodbConn.close()
-        print("mongodb disconnected")    
-    
+        print("mongodb disconnected")
+
     app = FastAPI(lifespan=lifespan)
 
     # The valid API key
@@ -31,14 +32,12 @@ try:
             raise HTTPException(status_code=401, detail="Invalid API key")
         return api_key
 
-
     # **************************       APP CHECKING         **************************
 
     # Root Endpoint
     @app.get("/")
     def read_root():
         return {"message": "App is running successfully"}
-
 
     # **************************       Car AD Checker API ENDPOINT         **************************
 
@@ -53,7 +52,7 @@ try:
         api_key: str = Depends(check_api_key, use_cache=True),
     ):
 
-    # ================== Checking Valid ObjectId for Car ID ==================
+        # ================== Checking Valid ObjectId for Car ID ==================
 
         # Check if car_id is a valid MongoDB ObjectId
         if not ObjectId.is_valid(car_data.carid):
@@ -61,30 +60,43 @@ try:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid car_id. Must be a valid MongoDB ObjectId.",
             )
-            
-    # ======================= Checking if UserID is in Database or not =======================
-        
+
+        # ======================= Checking if UserID is in Database or not =======================
+
         # Check if user_id exists in the database
         if not carzcollection.find_one({"_id": ObjectId(car_data.carid)}):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Car ID not found in database.",
             )
-            
-    # ======================= Ad Checking =======================
+
+        # ======================= Ad Checking =======================
 
         try:
-                car_ad_score = carAdMain(car_data.carid)
-                # car_ad_score = dummy(car_data.carid)
-                return car_ad_score
+            start_time = time.time()
+            car_ad_score = carAdMain(car_data.carid)
+            end_time = time.time()
+
+            total_time = end_time - start_time
+            print("Time taken total: ", total_time)
+            # car_ad_score = dummy(car_data.carid)
+            return car_ad_score
 
         except Exception as e:
             # Handle exceptions, log them, and return an appropriate response
             raise HTTPException(status_code=500, detail="Internal Server Error") from e
+
+
+
+    # **************************       Tire Tread Checker API ENDPOINT         **************************
+
     
+
+
+
     if __name__ == "__main__":
         uvicorn.run(app, host="127.0.0.1", port=80)
-    
-    
+
+
 except Exception as e:
-    print(e) 
+    print(e)
