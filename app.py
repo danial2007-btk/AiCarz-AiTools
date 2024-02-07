@@ -133,7 +133,7 @@ try:
     async def predict(file: UploadFile = File(...)):
         try:
             # Wrap the file in the FileUpload model to trigger validation
-            FileUpload(file=file)
+            # FileUpload(file=file)
             
             # Check the file extension
             # if file.content_type not in ["image/png", "image/jpeg", "image/jpg"]:
