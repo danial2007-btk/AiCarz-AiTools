@@ -38,7 +38,7 @@ def carAdMain(carID):
             return {"Response": "No images available for this car ad."}
 
     except Exception as e:
-        return f"Error inside the carAdMain Function {e}"
+        print (f"Error inside the carAdMain Function {e}")
     
 
 

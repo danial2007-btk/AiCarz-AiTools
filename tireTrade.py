@@ -1,10 +1,17 @@
-from keras.models import load_model
 import numpy as np
-from keras.preprocessing import image
 from io import BytesIO
+from keras.utils import get_file
+from keras.models import load_model
+from keras.preprocessing import image
 
 # Load your pre-trained model
-model = load_model('tyre.h5')
+# model = load_model('tyre.h5')
+
+# URL of the Keras model in HDF5 format
+H5_url = "https://aitoolmodel.s3.eu-west-2.amazonaws.com/models/tyre.h5"
+
+# Load the Keras model
+model = load_model(get_file("modelVGG.h5", H5_url))
 
 def preprocess_image(contents):
     try:

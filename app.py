@@ -1,6 +1,18 @@
-from fastapi import FastAPI, HTTPException, Depends, Query, status, UploadFile, File
+from fastapi import (
+    FastAPI,
+    File,
+    UploadFile,
+    HTTPException,
+    Depends,
+    Query,
+    status,
+    Request,
+)
+from pydantic import BaseModel, validator
+from tireTrade import preprocess_image, predict_image
+from starlette.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 from contextlib import asynccontextmanager
-from pydantic import BaseModel
 from bson import ObjectId
 import uvicorn
 import time
@@ -85,17 +97,8 @@ try:
         except Exception as e:
             # Handle exceptions, log them, and return an appropriate response
             raise HTTPException(status_code=500, detail="Internal Server Error") from e
-    
 
     # **************************       Car Tyre Tread Checker API ENDPOINT         **************************
-    from fastapi import FastAPI, File, UploadFile, HTTPException
-    from pydantic import BaseModel, validator
-    from tireTrade import preprocess_image, predict_image
-    from fastapi import FastAPI, Request, HTTPException
-    from starlette.responses import JSONResponse
-    from starlette.middleware.base import BaseHTTPMiddleware
-
-    app = FastAPI()
 
     class CatchLargeUploadMiddleware(BaseHTTPMiddleware):
         async def dispatch(self, request: Request, call_next):
@@ -106,7 +109,7 @@ try:
                 if content_length > max_size:
                     return JSONResponse(
                         status_code=413,
-                        content={"message": "Please upload a file of maximum 5 MB."}
+                        content={"message": "Please upload a file of maximum 5 MB."},
                     )
             response = await call_next(request)
             return response
@@ -114,35 +117,26 @@ try:
     # Add the middleware to the application
     app.add_middleware(CatchLargeUploadMiddleware)
 
-
-
     # Define a BaseModel for the file upload request
     class FileUpload(BaseModel):
         file: UploadFile
 
-
         # Custom validator to check file format
-        @validator('file')
+        @validator("file")
         def check_file_format(cls, v):
             allowed_formats = ["image/png", "image/jpeg", "image/jpg"]
             if v.content_type not in allowed_formats:
-                raise ValueError("Invalid file type: Only PNG, JPG, and JPEG are allowed.")
+                raise ValueError(
+                    "Invalid file type: Only PNG, JPG, and JPEG are allowed."
+                )
             return v
 
-    @app.get("/")
-    async def rootMsg():
-        return "API IS RUNNING PERFECTLY"
-
     @app.post("/tirechecker")
-    async def predict(file: UploadFile = File(...)):
+    async def tirechecker(
+        file: UploadFile = File(...),
+        api_key: str = Depends(check_api_key, use_cache=True),
+    ):
         try:
-            # Wrap the file in the FileUpload model to trigger validation
-            FileUpload(file=file)
-            
-            # Check the file extension
-            # if file.content_type not in ["image/png", "image/jpeg", "image/jpg"]:
-            #     raise HTTPException(status_code=400, detail="Invalid file type. Only PNG, JPG, and JPEG are allowed.")
-
             # Read image file
             contents = await file.read()
 
@@ -158,11 +152,9 @@ try:
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-
-
     if __name__ == "__main__":
         uvicorn.run(app, host="127.0.0.1", port=80)
 
 
 except Exception as e:
-    print(e)
+    print("Error inside the MAIN API FILE:", e)
