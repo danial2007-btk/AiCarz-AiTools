@@ -85,15 +85,7 @@ try:
         except Exception as e:
             # Handle exceptions, log them, and return an appropriate response
             raise HTTPException(status_code=500, detail="Internal Server Error") from e
-
-
-
-    # **************************       Tire Tread Checker API ENDPOINT         **************************
-
     
-
-
-
     if __name__ == "__main__":
         uvicorn.run(app, host="127.0.0.1", port=80)
 
