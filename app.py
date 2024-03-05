@@ -4,6 +4,12 @@ from io import BytesIO
 
 app = FastAPI()
 
+
+@app.get("/")
+async def root():
+    print("Hello, I'm Working Perfect.")
+    
+
 @app.post("/panelgap")
 async def create_upload_file(file: UploadFile = File(...)):
     # Validate image format
@@ -18,7 +24,7 @@ async def create_upload_file(file: UploadFile = File(...)):
     
     # Since we've read the file, we need to use BytesIO to stream it back
     buffer = BytesIO(contents)
-    buffer.seek(0)  # Reset the buffer's position to the beginning
+    buffer.seek(0)
     
     # Create a StreamingResponse to return the image
     return StreamingResponse(buffer, media_type=file.content_type)
