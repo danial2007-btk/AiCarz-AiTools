@@ -152,6 +152,13 @@ try:
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
+    # **************************       Car Body Pannel Gap Detection API ENDPOINT         **************************
+
+    
+    
+    
+    
+    
     if __name__ == "__main__":
         uvicorn.run(app, host="127.0.0.1", port=8080)
 
