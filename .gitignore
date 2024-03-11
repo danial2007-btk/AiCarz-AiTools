@@ -1,9 +1,0 @@
-img
-aitools
-requirments2.txt
-
-Dockerfile
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
