@@ -105,7 +105,7 @@ try:
             # Attempt to catch large uploads
             if "content-length" in request.headers:
                 content_length = int(request.headers["content-length"])
-                max_size = 5 * 1024 * 1024  # 5 MB
+                max_size = 100 * 1024 * 1024  # 100 MB
                 if content_length > max_size:
                     return JSONResponse(
                         status_code=413,
