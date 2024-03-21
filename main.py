@@ -29,11 +29,11 @@ def carAdMain(carID):
             rejectedImages = list(set(carImages) - set(filtered_carImage))
             
             if len(filtered_carImage) == 0:
-                return {'Id': ID, 'CheckedDescription': carDesc, 'rejectedImages':rejectedImages,'adStatus': 'Rejected'}
+                return {'Id': ID, 'checkedDescription': carDesc, 'rejectedImages':rejectedImages,'adStatus': 'Rejected'}
 
             descriptionCheck = descriptionChecker(carDesc)
 
-            return {'Id': ID, 'CheckedDescription': descriptionCheck,'RejectedImages': rejectedImages, 'adStatus': 'Approved'}
+            return {'Id': ID, 'checkedDescription': descriptionCheck,'rejectedImages': rejectedImages, 'adStatus': 'Approved'}
         else:
             return {"Response": "No images available for this car ad."}
 
