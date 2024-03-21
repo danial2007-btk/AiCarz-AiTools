@@ -26,7 +26,6 @@ try:
     async def lifespan(app: FastAPI):
         # Load the ML model
         print("======> loading statup event")
-        # ml_models["answer_to_everything"] = fake_answer_to_everything_ml_model
         yield
         # Clean up the ML models and release the resources
         print("xxxxxxxx   shurting down event")
@@ -105,7 +104,7 @@ try:
             # Attempt to catch large uploads
             if "content-length" in request.headers:
                 content_length = int(request.headers["content-length"])
-                max_size = 5 * 1024 * 1024  # 5 MB
+                max_size = 100 * 1024 * 1024  # 100 MB
                 if content_length > max_size:
                     return JSONResponse(
                         status_code=413,
@@ -152,6 +151,9 @@ try:
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
+    # **************************       Car Body Panel Checker API ENDPOINT         **************************
+    
+    
     if __name__ == "__main__":
         uvicorn.run(app, host="127.0.0.1", port=8080)
 
