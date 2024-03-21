@@ -12,7 +12,7 @@ from keras.utils import get_file
 warnings.filterwarnings("ignore")
 
 # URL of the Keras model in HDF5 format
-H5_url = "https://aitoolmodel.s3.eu-west-2.amazonaws.com/models/modelVGG.h5"
+H5_url = "https://aitoolmodel.s3.eu-west-2.amazonaws.com/models/FT_car_classification_model.h5"
 
 # Load the Keras model
 model = load_model(get_file("modelVGG.h5", H5_url))
