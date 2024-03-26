@@ -13,9 +13,13 @@ from tireTrade import preprocess_image, predict_image
 from starlette.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from contextlib import asynccontextmanager
+from fastapi.responses import StreamingResponse
+from ultralytics import YOLO
+from PIL import Image, ImageDraw
 from bson import ObjectId
 import uvicorn
 import time
+import io
 
 from main import carAdMain
 from mongodb import carzcollection, mongodbConn
@@ -33,7 +37,24 @@ try:
         print("mongodb disconnected")
 
     app = FastAPI(lifespan=lifespan)
+    
+    class CatchLargeUploadMiddleware(BaseHTTPMiddleware):
+        async def dispatch(self, request: Request, call_next):
+            # Attempt to catch large uploads
+            if "content-length" in request.headers:
+                content_length = int(request.headers["content-length"])
+                max_size = 100 * 1024 * 1024  # 100 MB
+                if content_length > max_size:
+                    return JSONResponse(
+                        status_code=413,
+                        content={"message": "Please upload a file of maximum 5 MB."},
+                    )
+            response = await call_next(request)
+            return response
 
+    # Add the middleware to the application
+    app.add_middleware(CatchLargeUploadMiddleware)
+    
     # The valid API key
     API_key = "lkjINRhG1rKRNc2kE5xfcK0hFJaz6Kvz1jux"
 
@@ -153,10 +174,56 @@ try:
 
     # **************************       Car Body Panel Checker API ENDPOINT         **************************
     
+    # Load your custom-trained model
+    model = YOLO('bodyPannel.pt')
     
-    
-    
-    
+    # Define a BaseModel for the file upload request
+    class FileUpload(BaseModel):
+        file: UploadFile
+
+        # Custom validator to check file format
+        @validator("file")
+        def check_file_format(cls, v):
+            allowed_formats = ["image/png", "image/jpeg", "image/jpg"]
+            if v.content_type not in allowed_formats:
+                raise ValueError(
+                    "Invalid file type: Only PNG, JPG, and JPEG are allowed."
+                )
+            return v
+        
+    @app.post("/bodyPannel")
+    async def predict(
+        file: UploadFile = File(...),
+        api_key: str = Depends(check_api_key, use_cache=True),
+    ):
+        
+        # Ensure that a file is uploaded
+        if file is None:
+            return {"error": "No file uploaded."}
+
+        # # Convert the uploaded file to a PIL Image
+        image_bytes = await file.read()
+        image = Image.open(io.BytesIO(image_bytes))
+
+        # Perform prediction
+        results = model.predict(image, conf=0.50)
+
+        # Get bounding boxes from results
+        boxes = results[0].boxes.xyxy  
+
+        # Draw bounding boxes on the image
+        draw = ImageDraw.Draw(image)
+        line_width = 8
+        for box in boxes:
+            draw.rectangle([(box[0], box[1]), (box[2], box[3])], outline="red", width=line_width)
+
+        # Save the modified image to a bytes buffer
+        buf = io.BytesIO()
+        image.save(buf, format='JPEG')
+        buf.seek(0)
+
+        # Return the modified image directly
+        return StreamingResponse(buf, media_type="image/jpeg")
     
     if __name__ == "__main__":
         uvicorn.run(app, host="127.0.0.1", port=8080)
