@@ -32,7 +32,7 @@ try:
         print("======> loading statup event")
         yield
         # Clean up the ML models and release the resources
-        print("xxxxxxxx   shurting down event")
+        print("xxxxxxxx shurting down event")
         mongodbConn.close()
         print("mongodb disconnected")
 
