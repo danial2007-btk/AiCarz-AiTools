@@ -4,7 +4,6 @@ import io
 import requests
 import joblib
 from langdetect import detect
-# from sklearn.model_selection import GridSearchCV
 
 # Function to clean and preprocess the text
 def clean_and_preprocess_text(text):

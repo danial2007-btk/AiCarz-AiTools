@@ -22,6 +22,7 @@ import time
 import io
 
 from main import carAdMain
+from bodyPannel import model
 from mongodb import carzcollection, mongodbConn
 
 try:
@@ -64,14 +65,14 @@ try:
             raise HTTPException(status_code=401, detail="Invalid API key")
         return api_key
 
-    # **************************       APP CHECKING         **************************
+    # ########################################       APP CHECKING         ########################################
 
     # Root Endpoint
     @app.get("/")
     def read_root():
         return {"message": "App is running successfully"}
 
-    # **************************       Car AD Checker API ENDPOINT         **************************
+    # ########################################       Car AD Checker API ENDPOINT         ########################################
 
     class AdCarIdInput(BaseModel):
         carid: str  # Car ID as input
@@ -118,24 +119,7 @@ try:
             # Handle exceptions, log them, and return an appropriate response
             raise HTTPException(status_code=500, detail="Internal Server Error") from e
 
-    # **************************       Car Tyre Tread Checker API ENDPOINT         **************************
-
-    class CatchLargeUploadMiddleware(BaseHTTPMiddleware):
-        async def dispatch(self, request: Request, call_next):
-            # Attempt to catch large uploads
-            if "content-length" in request.headers:
-                content_length = int(request.headers["content-length"])
-                max_size = 100 * 1024 * 1024  # 100 MB
-                if content_length > max_size:
-                    return JSONResponse(
-                        status_code=413,
-                        content={"message": "Please upload a file of maximum 5 MB."},
-                    )
-            response = await call_next(request)
-            return response
-
-    # Add the middleware to the application
-    app.add_middleware(CatchLargeUploadMiddleware)
+    # ########################################       Car Tyre Tread Checker API ENDPOINT         ########################################
 
     # Define a BaseModel for the file upload request
     class FileUpload(BaseModel):
@@ -172,27 +156,10 @@ try:
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-    # **************************       Car Body Panel Checker API ENDPOINT         **************************
-    
-    # Load your custom-trained model
-    model = YOLO('bodyPannel.pt')
-    
-    # Define a BaseModel for the file upload request
-    class FileUpload(BaseModel):
-        file: UploadFile
-
-        # Custom validator to check file format
-        @validator("file")
-        def check_file_format(cls, v):
-            allowed_formats = ["image/png", "image/jpeg", "image/jpg"]
-            if v.content_type not in allowed_formats:
-                raise ValueError(
-                    "Invalid file type: Only PNG, JPG, and JPEG are allowed."
-                )
-            return v
-        
+    # ########################################       Car Body Panel Checker API ENDPOINT         ########################################
+  
     @app.post("/bodyPannel")
-    async def predict(
+    async def bodyPannel(
         file: UploadFile = File(...),
         api_key: str = Depends(check_api_key, use_cache=True),
     ):
@@ -206,7 +173,7 @@ try:
         image = Image.open(io.BytesIO(image_bytes))
 
         # Perform prediction
-        results = model.predict(image, conf=0.50)
+        results = model().predict(image, conf=0.50)
 
         # Get bounding boxes from results
         boxes = results[0].boxes.xyxy  
@@ -224,6 +191,7 @@ try:
 
         # Return the modified image directly
         return StreamingResponse(buf, media_type="image/jpeg")
+    
     
     if __name__ == "__main__":
         uvicorn.run(app, host="127.0.0.1", port=8080)

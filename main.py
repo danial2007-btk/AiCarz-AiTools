@@ -1,6 +1,3 @@
-from bson import ObjectId
-import io
-
 from carDetection import imageChecker
 from NLPengine import descriptionChecker
 from dataPipeline import getData

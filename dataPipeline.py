@@ -1,5 +1,4 @@
 from bson import ObjectId
-import time
 
 from mongodb import carzcollection
 

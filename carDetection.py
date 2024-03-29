@@ -59,3 +59,4 @@ def imageChecker(image_url):
 
     except Exception as e:
         return f"Error inside the ImageChecker Function {e}"
+

@@ -11,7 +11,7 @@ from keras.preprocessing import image
 H5_url = "https://aitoolmodel.s3.eu-west-2.amazonaws.com/models/tyre.h5"
 
 # Load the Keras model
-model = load_model(get_file("modelVGG.h5", H5_url))
+model = load_model(get_file("tyre.h5", H5_url))
 
 def preprocess_image(contents):
     try:
@@ -29,3 +29,4 @@ def predict_image(img_array):
     predictions = model.predict(img_array)
     predicted_class = 1 if predictions[0] > 0.5 else 0
     return "Good" if predicted_class == 1 else "Defected"
+
