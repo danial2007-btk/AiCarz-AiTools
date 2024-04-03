@@ -14,9 +14,12 @@ from starlette.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from contextlib import asynccontextmanager
 from fastapi.responses import StreamingResponse
-from ultralytics import YOLO
+from contextlib import asynccontextmanager
+from memory_profiler import profile
 from PIL import Image, ImageDraw
 from bson import ObjectId
+import psutil
+import asyncio
 import uvicorn
 import time
 import io
@@ -36,8 +39,6 @@ try:
         print("xxxxxxxx shurting down event")
         mongodbConn.close()
         print("mongodb disconnected")
-
-    app = FastAPI(lifespan=lifespan)
     
     class CatchLargeUploadMiddleware(BaseHTTPMiddleware):
         async def dispatch(self, request: Request, call_next):
@@ -53,9 +54,6 @@ try:
             response = await call_next(request)
             return response
 
-    # Add the middleware to the application
-    app.add_middleware(CatchLargeUploadMiddleware)
-    
     # The valid API key
     API_key = "lkjINRhG1rKRNc2kE5xfcK0hFJaz6Kvz1jux"
 
@@ -64,7 +62,22 @@ try:
         if api_key != API_key:
             raise HTTPException(status_code=401, detail="Invalid API key")
         return api_key
+    
+    app = FastAPI(lifespan=lifespan)
+    # Add the middleware to the application
+    app.add_middleware(CatchLargeUploadMiddleware)
+    
+    # Define a function to log memory consumption
+    async def log_memory_consumption():
+        while True:
+            mem_info = psutil.virtual_memory()
+            print(f"Memory Usage: {mem_info.used / (1024*1024):.2f} MB")
+            await asyncio.sleep(60)  # Log memory consumption every minute
 
+    @app.on_event("startup")
+    async def startup_event():
+        # Start the memory consumption logging coroutine on startup
+        asyncio.create_task(log_memory_consumption())
     # ########################################       APP CHECKING         ########################################
 
     # Root Endpoint
@@ -78,7 +91,7 @@ try:
         carid: str  # Car ID as input
 
     # car AdChecking API Endpoint
-    # @profile
+    @profile
     @app.post("/adChecker")
     async def car_ad_checker(
         car_data: AdCarIdInput,
@@ -134,7 +147,8 @@ try:
                     "Invalid file type: Only PNG, JPG, and JPEG are allowed."
                 )
             return v
-
+    
+    @profile
     @app.post("/tirechecker")
     async def tirechecker(
         file: UploadFile = File(...),
@@ -157,7 +171,7 @@ try:
             raise HTTPException(status_code=500, detail=str(e))
 
     # ########################################       Car Body Panel Checker API ENDPOINT         ########################################
-  
+    @profile
     @app.post("/bodyPannel")
     async def bodyPannel(
         file: UploadFile = File(...),
