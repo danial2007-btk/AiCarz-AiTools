@@ -207,6 +207,7 @@ try:
         return StreamingResponse(buf, media_type="image/jpeg")
     
     
+    
     if __name__ == "__main__":
         uvicorn.run(app, host="127.0.0.1", port=8080)
 
