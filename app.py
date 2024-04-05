@@ -181,8 +181,13 @@ try:
         # Ensure that a file is uploaded
         if file is None:
             return {"error": "No file uploaded."}
-
-        # # Convert the uploaded file to a PIL Image
+       
+        # Check file format
+        allowed_formats = ["image/png", "image/jpeg", "image/jpg"]
+        if file.content_type not in allowed_formats:
+            return {"error": "Invalid file format: Only PNG, JPG, and JPEG are allowed."}
+        
+        # Convert the uploaded file to a PIL Image
         image_bytes = await file.read()
         image = Image.open(io.BytesIO(image_bytes))
 
