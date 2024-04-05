@@ -149,8 +149,8 @@ try:
             return v
     
     @profile
-    @app.post("/tirechecker")
-    async def tirechecker(
+    @app.post("/tyrechecker")
+    async def tyrechecker(
         file: UploadFile = File(...),
         api_key: str = Depends(check_api_key, use_cache=True),
     ):
@@ -172,8 +172,8 @@ try:
 
     # ########################################       Car Body Panel Checker API ENDPOINT         ########################################
     @profile
-    @app.post("/bodyPannel")
-    async def bodyPannel(
+    @app.post("/bodyPanel")
+    async def bodyPanel(
         file: UploadFile = File(...),
         api_key: str = Depends(check_api_key, use_cache=True),
     ):
@@ -188,9 +188,12 @@ try:
 
         # Perform prediction
         results = model().predict(image, conf=0.50)
-
+        
         # Get bounding boxes from results
         boxes = results[0].boxes.xyxy  
+        print("Boxes:::",boxes)
+        if len(boxes) == 0:
+            return {"response": "No Damage Detected"}
 
         # Draw bounding boxes on the image
         draw = ImageDraw.Draw(image)
