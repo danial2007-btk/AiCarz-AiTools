@@ -18,8 +18,8 @@ from contextlib import asynccontextmanager
 from memory_profiler import profile
 from PIL import Image, ImageDraw
 from bson import ObjectId
-import psutil
-import asyncio
+# import psutil
+# import asyncio
 import uvicorn
 import time
 import io
@@ -67,18 +67,18 @@ try:
     # Add the middleware to the application
     app.add_middleware(CatchLargeUploadMiddleware)
     
-    # Define a function to log memory consumption
-    async def log_memory_consumption():
-        while True:
-            mem_info = psutil.virtual_memory()
-            print(f"Memory Usage: {mem_info.used / (1024*1024):.2f} MB")
-            await asyncio.sleep(60)  # Log memory consumption every minute
+    # # Define a function to log memory consumption
+    # async def log_memory_consumption():
+    #     while True:
+    #         mem_info = psutil.virtual_memory()
+    #         print(f"Memory Usage: {mem_info.used / (1024*1024):.2f} MB")
+    #         await asyncio.sleep(60)  # Log memory consumption every minute
 
-    @app.on_event("startup")
-    async def startup_event():
-        # Start the memory consumption logging coroutine on startup
-        asyncio.create_task(log_memory_consumption())
-    # ########################################       APP CHECKING         ########################################
+    # @app.on_event("startup")
+    # async def startup_event():
+    #     # Start the memory consumption logging coroutine on startup
+    #     asyncio.create_task(log_memory_consumption())
+    # # ########################################       APP CHECKING         ########################################
 
     # Root Endpoint
     @app.get("/")
@@ -191,7 +191,7 @@ try:
         
         # Get bounding boxes from results
         boxes = results[0].boxes.xyxy  
-        print("Boxes:::",boxes)
+
         if len(boxes) == 0:
             return {"response": "No Damage Detected"}
 
@@ -209,11 +209,8 @@ try:
         # Return the modified image directly
         return StreamingResponse(buf, media_type="image/jpeg")
     
-    
-    
     if __name__ == "__main__":
         uvicorn.run(app, host="127.0.0.1", port=8080)
-
 
 except Exception as e:
     print("Error inside the MAIN API FILE:", e)
