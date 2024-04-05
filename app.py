@@ -149,8 +149,8 @@ try:
             return v
     
     @profile
-    @app.post("/tyrechecker")
-    async def tyrechecker(
+    @app.post("/tirechecker")
+    async def tirechecker(
         file: UploadFile = File(...),
         api_key: str = Depends(check_api_key, use_cache=True),
     ):
@@ -172,8 +172,8 @@ try:
 
     # ########################################       Car Body Panel Checker API ENDPOINT         ########################################
     @profile
-    @app.post("/bodyPanel")
-    async def bodyPanel(
+    @app.post("/bodyPannel")
+    async def bodyPannel(
         file: UploadFile = File(...),
         api_key: str = Depends(check_api_key, use_cache=True),
     ):
