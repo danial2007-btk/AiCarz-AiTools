@@ -15,7 +15,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from contextlib import asynccontextmanager
 from fastapi.responses import StreamingResponse
 from contextlib import asynccontextmanager
-from memory_profiler import profile
+# from memory_profiler import profile
 from PIL import Image, ImageDraw
 from bson import ObjectId
 # import psutil
@@ -91,7 +91,7 @@ try:
         carid: str  # Car ID as input
 
     # car AdChecking API Endpoint
-    @profile
+    # @profile
     @app.post("/adChecker")
     async def car_ad_checker(
         car_data: AdCarIdInput,
@@ -148,7 +148,7 @@ try:
                 )
             return v
     
-    @profile
+    # @profile
     @app.post("/tirechecker")
     async def tirechecker(
         file: UploadFile = File(...),
@@ -171,7 +171,7 @@ try:
             raise HTTPException(status_code=500, detail=str(e))
 
     # ########################################       Car Body Panel Checker API ENDPOINT         ########################################
-    @profile
+    # @profile
     @app.post("/bodyPannel")
     async def bodyPannel(
         file: UploadFile = File(...),
@@ -190,6 +190,13 @@ try:
         # Convert the uploaded file to a PIL Image
         image_bytes = await file.read()
         image = Image.open(io.BytesIO(image_bytes))
+        # Convert the image to RGB format to ensure it has 3 channels, if not already
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+
+        # Rotate the image by 90 degrees
+        image = image.rotate(0, expand=True)
+        # image.save("input_img.png")
 
         # Perform prediction
         results = model().predict(image, conf=0.50)
@@ -197,22 +204,42 @@ try:
         # Get bounding boxes from results
         boxes = results[0].boxes.xyxy  
 
-        if len(boxes) == 0:
-            return {"response": "No Damage Detected"}
+        # if len(boxes) == 0:
+        #     return {"response": "No Damage Detected"}
 
-        # Draw bounding boxes on the image
-        draw = ImageDraw.Draw(image)
-        line_width = 8
-        for box in boxes:
-            draw.rectangle([(box[0], box[1]), (box[2], box[3])], outline="red", width=line_width)
+        # # Draw bounding boxes on the image
+        # draw = ImageDraw.Draw(image)
+        # line_width = 8
+        # for box in boxes:
+        #     draw.rectangle([(box[0], box[1]), (box[2], box[3])], outline="red", width=line_width)
+
+        # # Save the modified image to a bytes buffer
+        # buf = io.BytesIO()
+        # image.save(buf, format='JPEG')
+        # buf.seek(0)
+
+        # # Return the modified image directly
+        # return StreamingResponse(buf, media_type="image/jpeg")
+
+        # boxes = []  # Dummy placeholder for bounding boxes
+
+        # Draw bounding boxes and determine the response header
+        header_value = "Panel is Good"
+        if len(boxes) > 0:
+            draw = ImageDraw.Draw(image)
+            line_width = 8
+            for box in boxes:
+                draw.rectangle([(box[0], box[1]), (box[2], box[3])], outline="red", width=line_width)
+            header_value = "Panel is Defected"
 
         # Save the modified image to a bytes buffer
         buf = io.BytesIO()
         image.save(buf, format='JPEG')
         buf.seek(0)
 
-        # Return the modified image directly
-        return StreamingResponse(buf, media_type="image/jpeg")
+        # Return the modified image directly with a custom header
+        return StreamingResponse(buf, media_type="image/jpeg", headers={"X-Panel-S  us": header_value})
+
     
     if __name__ == "__main__":
         uvicorn.run(app, host="127.0.0.1", port=8080)

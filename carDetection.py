@@ -12,17 +12,19 @@ from keras.utils import get_file
 warnings.filterwarnings("ignore")
 
 # URL of the Keras model in HDF5 format
-H5_url = "https://aitoolmodel.s3.eu-west-2.amazonaws.com/models/FT_car_classification_model.h5"
+# H5_url = "https://aitoolmodel.s3.eu-west-2.amazonaws.com/models/FT_car_classification_model.h5"
 
 # Load the Keras model
-model = load_model(get_file("modelVGG.h5", H5_url))
+# model = load_model(get_file("modelVGG.h5", H5_url))
 
+
+model = load_model('car-checker.h5', compile=False)
 
 # Function to load and preprocess an image from URL
 def preprocess_image_from_url(image_url):
     try:
-        img_width = 300
-        img_height = 224
+        img_width = 350
+        img_height = 250
 
         # Download the image from the URL
         response = requests.get(image_url)
@@ -54,7 +56,7 @@ def imageChecker(image_url):
         # Make predictions
         predictions = model.predict(example_image)
         # Convert the predictions to binary classes
-        predicted_class = 1 if predictions[0] > 0.5 else 0
+        predicted_class = 1 if predictions[0] > 0.8 else 0
         return predicted_class
 
     except Exception as e:
