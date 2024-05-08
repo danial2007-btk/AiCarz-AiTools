@@ -16,9 +16,11 @@ warnings.filterwarnings("ignore")
 
 # Load the Keras model
 # model = load_model(get_file("modelVGG.h5", H5_url))
+H5_url = "https://aitoolmodel.s3.eu-west-2.amazonaws.com/models/car-checker.h5"
 
+model = load_model(get_file("car-checker.h5", H5_url))
 
-model = load_model('car-checker.h5', compile=False)
+# model = load_model('car-checker.h5', compile=False)
 
 # Function to load and preprocess an image from URL
 def preprocess_image_from_url(image_url):
